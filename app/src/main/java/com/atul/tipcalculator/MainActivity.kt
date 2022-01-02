@@ -1,6 +1,11 @@
 package com.atul.tipcalculator
 
+import android.content.Context
 import android.os.Bundle
+import android.view.KeyEvent
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.atul.tipcalculator.databinding.ActivityMainBinding
 import java.text.NumberFormat
@@ -13,12 +18,14 @@ class MainActivity : AppCompatActivity() {
     private var billAmount: Int = 0
     private var percentTip: Float = 0.0f
     private var totalBill: Double = 0.0
+    private var timeNow: Long = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.calculate.setOnClickListener { calculateTip() }
+        binding.textInputEditText.setOnKeyListener{view, keyCode, _ -> handleKeyEvent(view, keyCode)}
     }
 
     private fun calculateTip() {
@@ -59,5 +66,24 @@ class MainActivity : AppCompatActivity() {
             binding.finalAmount.text = "Tip Amount: $formattedTip"
     }
 
+    private fun handleKeyEvent(view: View, keyCode: Int): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_ENTER) {
+            // Hide the keyboard
+            val inputMethodManager =
+                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+            return true
+        }
+        return false
+    }
 
+    override fun onBackPressed() {
+        if(timeNow+2000> System.currentTimeMillis()) {
+            super.onBackPressed()
+        }
+        else{
+            Toast.makeText(this,"Press Again to Exit",Toast.LENGTH_SHORT).show()
+        }
+        timeNow = System.currentTimeMillis()
+    }
 }
